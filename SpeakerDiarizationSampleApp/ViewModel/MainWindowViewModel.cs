@@ -10,7 +10,6 @@ using SpeakerDiarizationSampleApp.Model.Data;
 using System;
 using System.Threading.Tasks;
 using System.Timers;
-using System.Web;
 using SpeakerDiarizationSampleApp.Model;
 
 namespace SpeakerDiarizationSampleApp.ViewModel
@@ -329,11 +328,11 @@ namespace SpeakerDiarizationSampleApp.ViewModel
             info.MaxSpeaker = max.ToString();
 
             string grammar = (appSettings != null) ? appSettings.grammarFileNames : "-a-general";
-
-            string dValue = "grammarFileNames=" + HttpUtility.UrlEncode(grammar);
-            dValue += " speakerDiarization=" + HttpUtility.UrlEncode("True");
-            dValue += " diarizationMinSpeaker=" + HttpUtility.UrlEncode(info.MinSpeaker) + " " + "diarizationMaxSpeaker=" + HttpUtility.UrlEncode(info.MaxSpeaker);
-            Debug.WriteLine(dValue);
+            
+            string dValue = "grammarFileNames=" +Uri.EscapeDataString(grammar);
+            dValue += " speakerDiarization=" + Uri.EscapeDataString("True");
+            dValue += " diarizationMinSpeaker=" + Uri.EscapeDataString(info.MinSpeaker) + " " + "diarizationMaxSpeaker=" + Uri.EscapeDataString(info.MaxSpeaker);
+            //Debug.WriteLine(dValue);
             return dValue;
         }
         #endregion

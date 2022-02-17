@@ -1,0 +1,387 @@
+﻿<Window x:Class="SpeakerDiarizationSampleApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:bh="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:vm="clr-namespace:SpeakerDiarizationSampleApp.ViewModel"
+        mc:Ignorable="d"
+        Title="MainWindow" 
+        Background="LightGray"
+        Width="900"
+        Height="600"
+        ResizeMode="NoResize"
+        FontFamily="Meiryo UI">
+
+    <Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>
+
+    <Window.Resources>
+        <Style x:Key="ListViewItemStyle1" TargetType="ListViewItem">
+            <Setter Property="BorderBrush" Value="DarkGray"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Padding" Value="4"/>
+            <!-- 他のプロパティは省略 -->
+        </Style>
+    </Window.Resources>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" MinWidth="300"/>
+            <ColumnDefinition Width="1.5*" MinWidth="300"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="80"/>
+        </Grid.RowDefinitions>
+
+        <!--#region - (0, 0) -->
+        <Grid Grid.Column="0" Grid.Row="0" VerticalAlignment="Bottom" Margin="10,0,10,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="40"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Text="音声ファイル一覧"
+                       FontSize="24"
+                       FontWeight="Bold" 
+                       Foreground="DimGray"
+                       Grid.Column="0">
+            </TextBlock>
+            <!--#region - Folder Button-->
+            <Button x:Name="FolderButton"
+                    Command="{Binding OpenFolderCommand}"
+                    Background="Transparent"
+                    Grid.Column="1"
+                    VerticalAlignment="Bottom">
+
+                <Button.Content>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="2*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Viewbox Margin="0" Grid.Row="0">
+                            <TextBlock Foreground="DimGray" FontWeight="ExtraBold" FontFamily="Segoe MDL2 Assets" Text="&#xED25;"/>
+                        </Viewbox>
+                        <TextBlock Grid.Row="1" Text="開く" Foreground="DimGray" FontSize="10" HorizontalAlignment="Center" Margin="0,-1,0,0"></TextBlock>
+                    </Grid>
+                </Button.Content>
+
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Width="25" Height="35" 
+                                Background="{TemplateBinding Background}">
+                            <ContentPresenter VerticalAlignment="Center"
+                                              HorizontalAlignment="Center"/>
+                        </Border>
+                        
+                        <ControlTemplate.Triggers>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Width" Value="20" TargetName="border"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <!--#endregion-->
+
+            <!--#region - Update Button-->
+            <Button x:Name="UpdateButton"
+                    Command="{Binding UpdateCommand}"
+                    Background="Transparent"
+                    Grid.Column="2"
+                    VerticalAlignment="Bottom">
+
+                <Button.Content>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="2*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Viewbox Grid.Row="0" Margin="0">
+                            <TextBlock Foreground="DimGray" FontWeight="ExtraBold" FontFamily="Segoe MDL2 Assets" Text="&#xEDAB;"/>
+                        </Viewbox>
+                        <TextBlock Grid.Row="1" Text="更新" Foreground="DimGray" FontSize="10" HorizontalAlignment="Center" Margin="0,-1,0,0"></TextBlock>
+                    </Grid>
+                </Button.Content>
+
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Width="25" Height="35" 
+                                Background="{TemplateBinding Background}">
+                            <ContentPresenter VerticalAlignment="Center"
+                                                  HorizontalAlignment="Center"/>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <!--
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="Gray" TargetName="border"/>
+                            </Trigger>
+                            -->
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Width" Value="20" TargetName="border"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <!--#endregion-->
+        </Grid>
+        <!--#endregion-->
+
+        <!--#region - (1, 0) - Audio List-->
+        <ListView x:Name="AudioListView" 
+                  Grid.Row="1"
+                  ItemsSource="{Binding Audios}"
+                  Margin="10,10,0,0"
+                  BorderThickness="0,1,0,1"
+                  Background="Transparent"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                  ItemContainerStyle="{StaticResource ListViewItemStyle1}"
+                  BorderBrush="DarkGray">
+
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Width ="{Binding ActualWidth, ElementName=AudioListView}" Margin="-10,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.8*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Grid Grid.Column="0" Margin="5">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <!--<RowDefinition Height="*"/>-->
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="{Binding Name}" 
+                                       Foreground="DimGray"
+                                       Grid.Row="0"
+                                       Margin="10,10,0,10"
+                                       FontSize="20" 
+                                       FontWeight="Bold"
+                                       TextWrapping="Wrap"/>
+                            <!--
+                            <TextBlock Text="{Binding Time}" 
+                                       Grid.Row="1"
+                                       FontSize="12" 
+                                       Margin="14,4,0,4"
+                                       HorizontalAlignment="Left">
+                            </TextBlock>
+                            -->
+                            <StackPanel Grid.Row="1" 
+                                        Orientation="Horizontal"
+                                        Margin="8,0,0,0"
+                                        HorizontalAlignment="Left">
+                                <Label Content="参加人数: "
+                                       Foreground="Gray"></Label>
+                                <TextBox Text="{Binding MinSpeaker}" 
+                                         Width="30"
+                                         TextAlignment="Center"
+                                         VerticalAlignment="Center"
+                                         BorderThickness="0,0,0,1"
+                                         Foreground="DimGray"
+                                         Background="Transparent"></TextBox>
+                                <Label Content="～"
+                                       Foreground="Gray"></Label>
+                                <TextBox Text="{Binding MaxSpeaker}"
+                                         Width="30"
+                                         TextAlignment="Center"
+                                         VerticalAlignment="Center"
+                                         BorderThickness="0,0,0,1"
+                                         Foreground="DimGray"
+                                         Background="Transparent"></TextBox>
+                            </StackPanel>
+
+                        </Grid>
+                        <!--#region - Status -->
+                        <Button Content="{Binding Status}"
+                                Grid.Column="1"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Center"
+                                Foreground="WhiteSmoke"
+                                Background="{Binding StatusBGColor}"
+                                FontSize="12">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Width="Auto"
+                                            Padding="11,0,11,2"
+                                            Height="24" 
+                                            CornerRadius="10"
+                                            Background="{TemplateBinding Background}">
+                                        <ContentPresenter VerticalAlignment="Center"
+                                                          HorizontalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <!--#endregion-->
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+
+            <bh:Interaction.Triggers>
+                <bh:EventTrigger EventName="SelectionChanged">
+                    <!--SelectionChanged PreviewMouseLeftButtonDown-->
+                    <bh:InvokeCommandAction Command="{Binding SelectedItemChangedCommand}"
+                                                CommandParameter="{Binding SelectedItem, ElementName=AudioListView}"/>
+                </bh:EventTrigger>
+            </bh:Interaction.Triggers>
+        </ListView>
+        <!--#endregion-->
+
+        <!--#region - (2, 0) -->
+        <StackPanel Orientation="Horizontal"
+                    Margin="10"
+                    HorizontalAlignment="Center"
+                    Grid.Column="0"
+                    Grid.Row="2">
+            <!--#region - Record Button-->
+            <Button x:Name="SendButton"
+                    Command="{Binding SendCommand}"
+                    Content="送信"
+                    FontSize="16"
+                    Background="DimGray"
+                    Foreground="WhiteSmoke">
+
+                <Button.Style>
+                    <Style>
+                        
+                    </Style>
+                </Button.Style>
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Width="100" Height="40" CornerRadius="20"
+                                Background="{TemplateBinding Background}">
+                            <ContentPresenter VerticalAlignment="Center"
+                                              HorizontalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Width" Value="90" TargetName="border"/>
+                                <Setter Property="Height" Value="36" TargetName="border"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <!--#endregion-->
+        </StackPanel>
+        <!--#endregion-->
+
+        <!--#region - (0..2, 1) -->
+        <ListView Grid.Column="1"
+                  Grid.Row="0"
+                  Grid.RowSpan="3"
+                  x:Name="ResultListView" 
+                  ItemsSource="{Binding ResultInfoList}"
+                  Margin="10"
+                  DockPanel.Dock="Top"
+                  Background="LightGray"
+                  BorderThickness="1,0,0,0"
+                  BorderBrush="DarkGray"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            
+            <ListView.ItemContainerStyle>
+                <Style TargetType="{x:Type ListViewItem}">
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                <ContentPresenter />
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="BorderBrush" Value="DarkGray" />
+                    <Setter Property="BorderThickness" Value="0,0,0,1" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Vertical" Margin="5,5,5,5" >
+                        <TextBox Text="{Binding Speaker, UpdateSourceTrigger=PropertyChanged}"                                     
+                                 VerticalAlignment="Stretch"
+                                 HorizontalAlignment="Left"
+                                 FontSize="14"
+                                 Padding="2"
+                                 Width="120"
+                                 Margin="5,0,4,0"
+                                 BorderThickness="0,0,0,1"
+                                 Background="Transparent" >
+                            <bh:Interaction.Triggers>
+                                <bh:EventTrigger EventName="TextChanged">
+                                    <bh:InvokeCommandAction Command="{Binding TextBoxChangedCommand}" CommandParameter="{Binding}"/>
+                                </bh:EventTrigger>
+                            </bh:Interaction.Triggers>
+                        </TextBox>
+                        <TextBox Text="{Binding Text}"
+                                 TextWrapping="Wrap"
+                                 FontSize="14"
+                                 Foreground="DimGray"
+                                 Margin="14,5,10,0"
+                                 Width="Auto"
+                                 Background="Transparent"
+                                 BorderBrush="DarkGray"
+                                 BorderThickness="3,0,0,0"
+                                 AcceptsReturn="True" 
+                                 Padding="6"/>
+
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <!--#endregion-->
+        
+        <!--#region - SaveText Button-->
+        <Button x:Name="SaveTextButton"
+                Command="{Binding SaveTextCommand}"
+                CommandParameter="{Binding Path=ResultInfoList}"
+                Grid.Column="1"
+                Grid.Row="3"
+                Margin="0,0,-400,0"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                Background="LightGray">
+            <Button.Content>
+                <Grid HorizontalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1.8*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Viewbox Margin="0" Grid.Row="0">
+                        <TextBlock Foreground="DimGray" FontWeight="ExtraBold" FontFamily="Segoe MDL2 Assets" Text="&#xE74E;"/>
+                    </Viewbox>
+                    <TextBlock x:Name="test" Grid.Row="1" Text="保存" Foreground="DimGray" FontSize="10" HorizontalAlignment="Center" Margin="0,-1,0,0"></TextBlock>
+                </Grid>
+            </Button.Content>
+
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border" Width="50" Height="50" 
+                                CornerRadius="11"
+                                Background="{TemplateBinding Background}">
+                        <ContentPresenter VerticalAlignment="Center"
+                                          HorizontalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Width" Value="30" TargetName="border"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+        <!--#endregion-->
+
+    </Grid>
+</Window>

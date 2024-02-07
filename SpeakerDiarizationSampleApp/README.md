@@ -1,5 +1,5 @@
 # SpeakerDiarizationSampleApp
-AmiVoice Cloud Platformの非同期HTTP音声認識APIにおける話者ダイアライゼーションを使用したWindowsアプリ
+AmiVoice APIの非同期HTTP音声認識APIにおける話者ダイアライゼーションを使用したWindowsアプリケーション
 
 ## About
 複数人が話している会議の録音した音声ファイルをアップロードするだけで、自動的に発言者ごとに区別して、文字起こしすることができます。
